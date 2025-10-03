@@ -15,7 +15,7 @@ public class Student {
 
     private String name;
     private String email;
-    private String rank;
+    private AikidoRank rank;
     private LocalDate joinDate;
 
     @Column(name = "created_at", updatable = false)
@@ -27,17 +27,15 @@ public class Student {
     @Transient
     private int membershipDuration;
 
-    @ManyToMany
-    @JoinTable(
-            name = "training_session_students", // This is the join table
-            joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "training_session_id")
-    )
-    private List<TrainingSession> trainingSessions;
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Attendance> attendanceRecords;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<ProgressReport> progressReports;
 
     public Student() {}
 
-    public Student(String name, String email, String rank, LocalDate joinDate) {
+    public Student(String name, String email, AikidoRank rank, LocalDate joinDate) {
         this.name = name;
         this.email = email;
         this.rank = rank;
@@ -64,16 +62,30 @@ public class Student {
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }
-    public String getRank() { return rank; }
+    public AikidoRank getRank() { return rank; }
     public LocalDate getJoinDate() { return joinDate; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public int getMembershipDuration() { return membershipDuration; }
-    public List<TrainingSession> getTrainingSessions() { return trainingSessions; }
 
     public void setName(String name) { this.name = name; }
     public void setEmail(String email) { this.email = email; }
-    public void setRank(String rank) { this.rank = rank; }
+    public void setRank(AikidoRank rank) { this.rank = rank; }
     public void setJoinDate(LocalDate joinDate) { this.joinDate = joinDate; }
-    public void setTrainingSessions(List<TrainingSession> trainingSessions) { this.trainingSessions = trainingSessions; }
+
+    public List<Attendance> getAttendanceRecords() {
+        return attendanceRecords;
+    }
+
+    public void setAttendanceRecords(List<Attendance> attendanceRecords) {
+        this.attendanceRecords = attendanceRecords;
+    }
+
+    public List<ProgressReport> getProgressReports() {
+        return progressReports;
+    }
+
+    public void setProgressReports(List<ProgressReport> progressReports) {
+        this.progressReports = progressReports;
+    }
 }

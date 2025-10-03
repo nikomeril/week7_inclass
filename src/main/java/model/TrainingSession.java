@@ -20,8 +20,60 @@ public class TrainingSession {
     @JoinColumn(name = "instructor_id", nullable = false)
     private Instructor instructor;
 
-    @ManyToMany(mappedBy = "trainingSessions")  // This refers to the "trainingSessions" property in Student
-    private List<Student> students;
+    @OneToMany(mappedBy = "trainingSession", cascade = CascadeType.ALL)
+    private List<Attendance> attendances;
 
-    // Constructors, Getters & Setters
+    public TrainingSession() {}
+
+    public TrainingSession(LocalDate date, String location, int duration, Instructor instructor) {
+        this.date = date;
+        this.location = location;
+        this.duration = duration;
+        this.instructor = instructor;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public Instructor getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(Instructor instructor) {
+        this.instructor = instructor;
+    }
+
+    public List<Attendance> getAttendances() {
+        return attendances;
+    }
+
+    public void setAttendances(List<Attendance> attendances) {
+        this.attendances = attendances;
+    }
+
 }

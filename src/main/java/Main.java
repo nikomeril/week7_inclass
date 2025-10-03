@@ -1,8 +1,7 @@
-
 import dao.StudentDAO;
 import dao.InstructorDAO;
-import model.Student;
-import model.Instructor;
+import dao.TrainingSessionDAO;
+import model.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -11,47 +10,43 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create the EntityManagerFactory and EntityManager
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("aikidoPU");
         EntityManager em = emf.createEntityManager();
 
-        // Start a transaction
-        em.getTransaction().begin();
-
-        // Initialize DAO classes
         StudentDAO studentDAO = new StudentDAO(em);
         InstructorDAO instructorDAO = new InstructorDAO(em);
+        TrainingSessionDAO sessionDAO = new TrainingSessionDAO(em);
 
-        // Add sample students
-        Student student1 = new Student("John Doe", "john@example.com", "White Belt", LocalDate.now());
-        Student student2 = new Student("Jane Smith", "jane@example.com", "Yellow Belt", LocalDate.now());
-
-        // Save students using the DAO (no need to call em.persist directly)
-        studentDAO.save(student1);
-        studentDAO.save(student2);
-
-        // Add an instructor
+        Student student1 = new Student("John Doe", "john@example.com", AikidoRank.KYU_5, LocalDate.now().minusMonths(7));
         Instructor instructor = new Instructor("Sensei Aki", "Aikido Throws", 10);
-        instructorDAO.save(instructor);
+        TrainingSession session = new TrainingSession(LocalDate.now(), "Main Dojo", 90, instructor);
 
-        // Commit the transaction
+        instructor.setTrainingSessions(List.of(session));
+
+        Attendance attendance = new Attendance(student1, session, AttendanceStatus.PRESENT, "Good performance");
+        session.setAttendances(List.of(attendance));
+        student1.setAttendanceRecords(List.of(attendance));
+
+        em.getTransaction().begin();
+        em.persist(student1);
+        em.persist(instructor);
+        em.persist(session);
+        em.persist(attendance);
         em.getTransaction().commit();
 
-        // Fetch and print students
-        List<Student> students = studentDAO.findAll();
-        System.out.println("Students:");
-        students.forEach(s -> {
-            System.out.println(s.getName() + " - " + s.getRank());
-            System.out.println("Created At: " + s.getCreatedAt());
-            System.out.println("Membership Duration: " + s.getMembershipDuration() + " years");
-        });
+        System.out.println("--- Find students by rank (KYU_5) ---");
+        List<Student> studentsByRank = studentDAO.findByRank(AikidoRank.KYU_5);
+        studentsByRank.forEach(s -> System.out.println(s.getName()));
 
-        // Fetch and print instructors
-        List<Instructor> instructors = instructorDAO.findAll();
-        System.out.println("Instructors:");
-        instructors.forEach(i -> System.out.println(i.getName() + " - " + i.getSpecialization()));
+        System.out.println("\n--- Find experienced instructors (5+ years) ---");
+        List<Instructor> experiencedInstructors = instructorDAO.findExperiencedInstructors(5);
+        experiencedInstructors.forEach(i -> System.out.println(i.getName()));
 
-        // Close the EntityManager and EntityManagerFactory
+        System.out.println("\n--- Find sessions for student John Doe ---");
+        List<TrainingSession> studentSessions = sessionDAO.findSessionsByStudentId(student1.getId());
+        studentSessions.forEach(ts -> System.out.println("Session at " + ts.getLocation() + " on " + ts.getDate()));
+
+
         em.close();
         emf.close();
     }

@@ -33,5 +33,7 @@ public class Instructor {
         return specialization;
     }
 
-    // Getters and Setters
+    public void setTrainingSessions(List<TrainingSession> trainingSessions) {
+        this.trainingSessions = trainingSessions;
+    }
 }

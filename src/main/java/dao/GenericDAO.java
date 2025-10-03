@@ -15,9 +15,9 @@ public abstract class GenericDAO<T> {
 
     public void save(T entity) {
         EntityTransaction tx = entityManager.getTransaction();
-
+        tx.begin();
         entityManager.persist(entity);
-
+        tx.commit();
     }
 
     public T findById(Long id) {
